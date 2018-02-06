@@ -1,0 +1,82 @@
+Use HDA Analyzer tool 
+http://www.alsa-project.org/main/index.php/HDA_Analyzer
+
+HDA Analyzer
+Jump to: navigation, search
+
+The HDA analyzer tool provides a graphical interface to access the raw HD-audio control, based on pyGTK2 binding. The program gives you an easy-to-use GUI stuff for showing the widget information and adjusting the amp values, as well as the proc-compatible output.
+
+This tool can parse also proc files (/proc/asound/card#/codec*) and output from alsa-info.sh script and monitor mode (check --help option);
+
+Get the basic run.py script:
+
+   wget -O run.py http://www.alsa-project.org/hda-analyzer.py
+
+Quick run:
+
+   python run.py
+
+Quick help:
+
+   python run.py --help
+
+Quick alsa-info.sh file analyzer:
+
+   python run.py /tmp/alsa-info.txt
+
+Quick monitor mode:
+
+   python run.py --monitor
+
+Do not forget to install pygtk2 or python-gtk package (depends on distribution).
+
+HDA Analyzer GIT Tree 
+
+
+
+#!/usr/bin/env python
+
+URL="http://git.alsa-project.org/?p=alsa.git;a=blob_plain;f=hda-analyzer/"
+FILES=["hda_analyzer.py", "hda_guilib.py", "hda_codec.py", "hda_proc.py",
+       "hda_graph.py", "hda_mixer.py"]
+
+try:
+  import gobject
+  import gtk
+  import pango
+except:
+  print "Please, install pygtk2 or python-gtk package"
+
+import os
+import sys
+from urllib import splithost
+from httplib import HTTP
+
+if os.path.exists("/dev/shm"):
+  TMPDIR="/dev/shm"
+else:
+  TMPDIR="/tmp"
+TMPDIR += "/hda-analyzer"
+print "Using temporary directory: %s" % TMPDIR
+print "You may remove this directory when finished or if you like to"
+print "download the most recent copy of hda-analyzer tool."
+if not os.path.exists(TMPDIR):
+  os.mkdir(TMPDIR)
+for f in FILES:
+  dest = TMPDIR + '/' + f
+  if os.path.exists(dest):
+    print "File cached " + dest
+    continue
+  print "Downloading file %s" % f
+  host, selector = splithost(URL[5:])
+  h = HTTP(host)
+  h.putrequest('GET', URL + f)
+  h.endheaders()
+  h.getreply()
+  contents = h.getfile().read(2*1024*1024)
+  h.close()
+  open(dest, "w+").write(contents)
+print "Downloaded all files, executing %s" % FILES[0]
+os.system("python %s" % TMPDIR + '/' + FILES[0] + ' ' + ' '.join(sys.argv[1:]))
+
+
